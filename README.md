@@ -19,13 +19,18 @@ The original data set had hundreds of columns to choose from however, variables 
 6. Respondent’s opinion on if a child suffers when the mother is working (categorical)
 ##  Repository Organization
 The folder structure can be found here [https://github.com/crice0023/HW-2/tree/main].
-The structure looks exactly like this: 
-
-
-
-The first folder is the R Code necessary to recreate the analyst's efforts. Then follows the raw data folder so interested parties have easy access to the same raw data the analyst used. 
+The structure is as follows: 
+1. R Code
+      df1c.RData (data set 1, clean)
+      df2c.RData (data set 2, clean)
+      df3c.Rdata (data set 3, clean)
+      HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
+      HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
+2. R Markdown
+     Country Specific HTML
+     Policy Makers
+     Stat Copy 
  
-
 ## Main Findings
 
 
