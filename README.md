@@ -21,15 +21,15 @@ The original data set had hundreds of columns to choose from however, variables 
 The folder structure can be found here [https://github.com/crice0023/HW-2/tree/main].
 The structure is as follows: 
 1. R Code
-      df1c.RData (data set 1, clean)
-      df2c.RData (data set 2, clean)
-      df3c.Rdata (data set 3, clean)
-      HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
-      HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
+      a. df1c.RData (data set 1, clean)
+      b. df2c.RData (data set 2, clean)
+      c. df3c.Rdata (data set 3, clean)
+      d. HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
+      e. HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
 2. R Markdown
-     Country Specific HTML
-     Policy Makers
-     Stat Copy 
+      a. Country Specific HTML
+      b. Policy Makers
+      c. Stat Copy 
  
 ## Main Findings
 
