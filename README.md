@@ -3,7 +3,7 @@ Chris Rice
 3.13.24
 
 ## Project Description
-According to the [website]: The European Values Study is a large-scale, cross-national and longitudinal
+According to the [[website](https://search.gesis.org/research_data/ZA7500#variables|exploredata-ZA7500_Varv72|0|variable_order|asc)]: The European Values Study is a large-scale, cross-national and longitudinal
 survey research program on how Europeans think about family, work, religion, politics, and society. Repeated
 every nine years in an increasing number of countries, the survey provides insights into the ideas, beliefs,
 preferences, attitudes, values, and opinions of citizens all over Europe.
