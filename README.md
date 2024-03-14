@@ -2,7 +2,31 @@
 Chris Rice
 3.13.24
 
+## Project Description
+According to the [website]: The European Values Study is a large-scale, cross-national and longitudinal
+survey research program on how Europeans think about family, work, religion, politics, and society. Repeated
+every nine years in an increasing number of countries, the survey provides insights into the ideas, beliefs,
+preferences, attitudes, values, and opinions of citizens all over Europe.
+Beginning steps were to create an account with the aforementioned website in order to extract either the
+SPSS or STATA file. In this case, we downloaded the STATA file in order to create an EVS 2017 analysis.
+The original data set had hundreds of columns to choose from however, variables of interest were as follows:
+1. Respondent’s age (continuous)
+2. Respondent’s country (categorical)
+3. Respondent’s education (categorical)
+4. Respondent’s sex (categorical)
+5. Respondent’s opinion on if jobs are scarce should national citizens have priority over immigrants
+(categorical)
+6. Respondent’s opinion on if a child suffers when the mother is working (categorical)
+##  Repository Organization
+The folder structure can be found here [https://github.com/crice0023/HW-2/tree/main].
+The structure looks exactly like this: 
 
+
+
+The first folder is the R Code necessary to recreate the analyst's efforts. Then follows the raw data folder so interested parties have easy access to the same raw data the analyst used. 
+ 
+
+## Main Findings
 
 
 
