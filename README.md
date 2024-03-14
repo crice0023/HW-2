@@ -10,13 +10,27 @@ preferences, attitudes, values, and opinions of citizens all over Europe.
 Beginning steps were to create an account with the aforementioned website in order to extract either the
 SPSS or STATA file. In this case, we downloaded the STATA file in order to create an EVS 2017 analysis.
 The original data set had hundreds of columns to choose from however, variables of interest were as follows:
+
 1. Respondent’s age (continuous)
 2. Respondent’s country (categorical)
 3. Respondent’s education (categorical)
 4. Respondent’s sex (categorical)
-5. Respondent’s opinion on if jobs are scarce should national citizens have priority over immigrants
-(categorical)
+5. Respondent’s opinion on if jobs are scarce should national citizens have priority over immigrants (categorical)
 6. Respondent’s opinion on if a child suffers when the mother is working (categorical)
+
+Data was imported into RStudio, cleaned and turned into 3 dataframes cleaned and mutated into our working copies. No raw data was brought into GitHub, but it can be found if needed in the above [[website](https://search.gesis.org/research_data/ZA7500#variables|exploredata-ZA7500_Varv72|0|variable_order|asc)].
+From this manipulated/cleaned dataset there were 3 main projects completed.
+
+1. Created R and Rmd script to output a PDF with code for [[Statisticians]] with the following:
+   - `a.` Descriptive statistics (Continuous/Categorical)
+   - `b.` 2 ggplots focusing on age against the 2 dependent vars (child_suffers and jobs_are_scarce)
+   - `c.` Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.
+
+2. Created R and Rmd script to output a PDF without code for [[Politicians]] with the following:
+   - `a.`  Descriptive statistics (Continuous/Categorical)
+   - `b.`  2 ggplots focusing on age against the 2 dependent vars (child_suffers and jobs_are_scarce)
+   - `c.`  Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.
+   - 
 ##  Repository Organization
 The folder structure can be found here [https://github.com/crice0023/HW-2/tree/main].
 The structure is as follows: 
