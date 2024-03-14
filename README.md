@@ -29,12 +29,12 @@ From this manipulated/cleaned dataset there were 3 main projects completed.
 2. Created R and Rmd script to output a PDF **without  code** for [[Policy Makers](https://github.com/crice0023/HW-2/blob/main/Rmarkdown/Policy%20Makers/EVS_Policy_Makers_Copy.pdf)] with the following:
    - `a.`  Descriptive statistics (Continuous/Categorical)
    - `b.`  2 ggplots focusing on age against the 2 dependent vars (child_suffers and jobs_are_scarce)
-   - `c.`  Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.C
+   - `c.`  Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.
   
-3. Created R and Rmd script to output 33 country-specific html files.
-   - `a.`
-   - `b.`
-   - `c.` 
+3. Created R loop and Rmd script to output 33 country-specific [html files] with the following: 
+   - `a.`  Descriptive statistics (Continuous/Categorical)
+   - `b.`  2 ggplots focusing on sex against the 2 dependent vars (child_suffers_numeric and jobs_are_scarce_numeric)
+   - `c.`  Regression model using (child_suffers_numeric and jobs_are_scarce_numeric) against respondent_sex variables. 
    
      
 ##  Repository Organization
