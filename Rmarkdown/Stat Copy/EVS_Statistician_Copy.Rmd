@@ -1,0 +1,174 @@
+---
+title: "HW R Markdown"
+author: "Chris Rice"
+date: "2024-03-09"
+output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(purrr) # Make sure to load purrr
+library(knitr)
+library(kableExtra)
+
+```
+
+
+---
+title: "EVS 2017 Data Review"
+output: pdf_document
+---
+According to the [[website]](https://search.gesis.org/research_data/ZA7500#variables|exploredata-ZA7500_Varv72|0|variable_order|asc): *The European Values Study is a large-scale, cross-national and longitudinal survey research program on how Europeans think about family, work, religion, politics, and society. Repeated every nine years in an increasing number of countries, the survey provides insights into the ideas, beliefs, preferences, attitudes, values, and opinions of citizens all over Europe.*
+
+Beginning steps were to create an account with the aforementioned website in order to extract either the SPSS or STATA file. In this case, we downloaded the STATA file in order to create an EVS 2017 analysis. The original data set had hundreds of columns to choose from however, variables of interest were as follows:  
+
+1. Respondent's age (continuous)
+2. Respondent's country (categorical)
+3. Respondent's education (categorical)
+4. Respondent's sex (categorical)
+5. Respondent's opinion on if jobs are scarce should national citizens have priority over immigrants (categorical)
+6. Respondent's opinion on if a child suffers when the mother is working (categorical)
+
+
+## Table 1 - Categorical Variable Descriptive Statistics ##
+```{r load-data, warning=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+
+calculate_frequencies <- function(data, var_name) {
+  data %>%
+    count(!!sym(var_name), name = "Frequency") %>%
+    mutate(Percentage = Frequency / sum(Frequency) * 100,
+           Category = as.character(!!sym(var_name)),
+           Variable = var_name) %>%
+    select(Variable, Category, Frequency, Percentage)
+}
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+# List of categorical variables
+categorical_vars <- c("country", "education", "child_suffers", "jobs_are_scarce")
+
+# Calculate frequencies and percentages for each variable and bind rows together
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+categorical_summary <- map_dfr(categorical_vars, ~calculate_frequencies(df1c, .x))
+
+# Display the table
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+knitr::kable(categorical_summary, booktabs = TRUE, caption = "Descriptive Summary of Categorical Variables") %>%
+  kable_styling(latex_options = c("striped", "scale_down")) %>%
+  column_spec(1, width = "4cm") %>%
+  column_spec(2, width = "4cm")
+
+``` 
+This table shows categorical variables with their respective variable, category, frequency and percentage. We can observe count totals within each category as well as percentages of total response by type. Technically, "jobs are scarce" and "child suffers" could have been converted from categorical (since they are ordinal) to continuous (which we will do before running the regression model). However, in order to have more meaningful and easy to interpret values for our readers, we decided best to keep them true to form (categorical).
+
+
+## Table 2 - Continuous Variable Descriptive Statistics ##
+```{r continous, message=FALSE}
+df1c <- df1c %>%
+  mutate(age = ifelse(age >= 82, 82, age))
+
+
+df1c <- df1c %>%
+  mutate(age = as.numeric(age),  # Attempt to convert age to numeric
+         age = ifelse(is.na(age), NA, age))  # Non-numeric become NA
+
+
+df1c %>%
+  summarise(
+    Mean = mean(age, na.rm = TRUE),
+    SD = sd(age, na.rm = TRUE),
+    Min = min(age, na.rm = TRUE),
+    `25% Quantile` = quantile(age, 0.25, na.rm = TRUE),
+    Median = median(age, na.rm = TRUE),
+    `75% Quantile` = quantile(age, 0.75, na.rm = TRUE),
+    Max = max(age, na.rm = TRUE)
+  ) %>%
+  knitr::kable(caption = "Descriptive Statistics for Age")  
+
+```
+Age is our only continuous variable. However, within the age column was "82 and older". This response was changed to equal 82. Thus, when we see 82 the respondent's age can be considered greater than or equal to 82. Hence, the maximum age of 82. Our results show a mean age of roughly 50, an s.d. of nearly 18, with a minimum age of 18. 
+
+Below we highlight the confirmation our age variable holds no NA values. We can say with confidence our descriptive statistics surrounding age are pure. 
+
+### No NAs in "age" confirmed ###
+```{r}
+ unique(df1c$age)
+
+
+```
+# Age Impact on Dependent Variables #
+
+### Plot 1 Age/Jobs are Scarce ###
+```{r categorical-table, echo=TRUE, fig.width=14, fig.height=6}
+library(ggplot2)
+df1c <- df1c %>%
+  mutate(jobs_are_scarce = as.factor(jobs_are_scarce))
+
+
+ggplot(df1c, aes(x = jobs_are_scarce, y = age)) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1, fill = "white") +  # narr bxplt for median/quartiles
+  labs(title = "Age Distribution by Jobs Are Scarce Response",
+       x = "Jobs Are Scarce Response",
+       y = "Age") +
+  theme_minimal()
+
+```
+We can see median and quartiles for each response category surrounding jobs_are_scarce. The specific question was: "When jobs are scarce, employers should give priority to [NATIONALITY] people over immigrants?" It appears from the box plots we can infer younger respondents tended to disagree strongly while observing median age rise when agreeing strongly.  
+
+
+### Plot 2 Age/Child Suffers ###
+```{r child-suffers-age, echo=TRUE, fig.width=14, fig.height=6}
+
+library(ggplot2)
+
+# Ensure 'child_suffers' is treated as a factor
+df1c <- df1c %>%
+  mutate(child_suffers = as.factor(child_suffers))
+
+# Plotting the relationship between 'child_suffers' responses and 'age'
+ggplot(df1c, aes(x = child_suffers, y = age)) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1, fill = "white") +  # Add narr bxplt for med/qrtiles
+  labs(title = "Age Distribution by Child Suffers Response",
+       x = "Child Suffers Response",
+       y = "Age") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  #  
+```
+We can see median and quartiles for each response category surrounding child_suffers. The specific question was: "When a mother works for pay, the children suffer?" It appears from the box plots we can infer younger respondents tended to disagree strongly while observing median age rise when agreeing strongly.  
+
+
+
+# Regression Models #
+```{r message=FALSE}
+library(dplyr)
+library(stargazer)
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df2c.RData")
+
+df2c <- df2c %>%
+  mutate(age_squared = age^2,
+         respondent_sex = as.factor(respondent_sex),
+         education = as.factor(education))
+
+model1 <- lm(jobs_are_scarce_numeric ~ age + age_squared + respondent_sex + education, data = df2c)
+model2 <- lm(child_suffers_numeric ~ age + age_squared + respondent_sex + education, data = df2c)
+
+stargazer(model1, model2, type = "text", 
+          title = "Regression Models Results",
+          align = TRUE,
+          header = FALSE,
+          model.numbers = FALSE,
+          digits = 3,  # Adjust number of decimal places, if desired
+          p.auto = TRUE,  # Ensure automatic p-value significance levels are used
+          signif.codes = TRUE)  # Ensure significance codes are shown
+
+
+```
+Here we took our categorical (and ordinal) dependent variables and made them continuous (numeric) so we could produce regression model results. These models show some statistical significance in predicting the dependent variables, but the low R^2 values indicate that they explain only a small portion of the variance. This suggests that while some predictors may have a statistically significant relationship with the outcome, they don't capture most of the complexity of the dependent variables. Further exploration of additional variables, interaction effects, or different modeling techniques might be needed. 

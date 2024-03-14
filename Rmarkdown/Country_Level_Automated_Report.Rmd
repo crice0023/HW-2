@@ -1,0 +1,196 @@
+---
+title: "Country Level Automated Report for `r params$country`"
+output: html_document
+params:
+  country: "DefaultCountry" # This default value is just for testing
+---
+## General Information ##
+
+Within this report we have country-specific categorical descriptive statistics. We can observe each report is a stand-alone document (take note of the 100% percentage of the specified state, along with the frequency of reports, and then a break down by category comprising the entire frequency). Our continuous variable, age, is also state-specific. Then we display bar charts on responses by sex regarding our two dependent variables; jobs_are_scarce and child_suffers. Last we show a regression model along with a dynamic report explaining the results. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(stargazer)
+library(purrr)
+library(kableExtra)
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df2c.RData")
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df3c.RData")
+```
+
+```{r filter-data, include=FALSE}
+
+# Assuming df1c is already loaded
+country_data <- df1c %>%
+  filter(country == params$country)
+
+```
+
+
+## Table 1 - Categorical Variable Descriptive Statistics ##
+```{r load-data, warning=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+
+# Filter df1c for the specified country
+country_specific_df1c <- df1c %>% filter(country == params$country)
+
+
+calculate_frequencies <- function(data, var_name) {
+  data %>%
+    count(!!sym(var_name), name = "Frequency") %>%
+    mutate(Percentage = Frequency / sum(Frequency) * 100,
+           Category = as.character(!!sym(var_name)),
+           Variable = var_name) %>%
+    select(Variable, Category, Frequency, Percentage)
+}
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+# List of categorical variables
+categorical_vars <- c("country", "education", "child_suffers", "jobs_are_scarce")
+
+# Calculate frequencies and percentages for each variable and bind rows together
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+categorical_summary <- map_dfr(categorical_vars, ~calculate_frequencies(df1c, .x))
+
+
+# Assuming calculate_frequencies function is defined as before
+categorical_summary_country <- map_dfr(categorical_vars, ~calculate_frequencies(country_data, .x))
+
+knitr::kable(categorical_summary_country, booktabs = TRUE, caption = paste("Descriptive Summary of Categorical Variables for", params$country)) %>%
+  kable_styling(latex_options = c("striped", "scale_down")) %>%
+  column_spec(1, width = "4cm") %>%
+  column_spec(2, width = "4cm")
+
+
+``` 
+## Table 2 - Continuous Variable Descriptive Statistics ##
+```{r continous, message=FALSE, echo=FALSE}
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df1c.RData")
+
+# Filter df1c for the specified country
+country_specific_df1c <- df1c %>% filter(country == params$country)
+
+
+# Ensure you're using the filtered data for the specific country
+country_data <- country_data %>%
+  mutate(age = ifelse(age >= 82, 82, age)) %>%
+  mutate(age = as.numeric(age),  # Attempt to convert age to numeric
+         age = ifelse(is.na(age), NA, age))  # Convert non-numeric to NA
+
+# Now calculate descriptive statistics using the country-specific data
+country_data %>%
+  summarise(
+    Mean = mean(age, na.rm = TRUE),
+    SD = sd(age, na.rm = TRUE),
+    Min = min(age, na.rm = TRUE),
+    `25% Quantile` = quantile(age, 0.25, na.rm = TRUE),
+    Median = median(age, na.rm = TRUE),
+    `75% Quantile` = quantile(age, 0.75, na.rm = TRUE),
+    Max = max(age, na.rm = TRUE)
+  ) %>%
+  knitr::kable(caption = paste("Descriptive Statistics for Age in", params$country))
+```
+# Sex Impact on Dependent Variables #
+
+### Plot 1 Sex/Jobs are Scarce ###
+```{r jobs-are-scarce-bar-plot, echo=FALSE, fig.width=14, fig.height=6}
+library(ggplot2)
+
+#  filtered dataset for the specific country
+# This step is necessary to apply the country filter correctly for each report
+country_data <- country_data %>%
+  mutate(jobs_are_scarce = as.factor(jobs_are_scarce),
+         respondent_sex = as.factor(respondent_sex))
+
+# Create a bar plot
+ggplot(country_data, aes(x = jobs_are_scarce, fill = respondent_sex)) +
+  geom_bar(position = "dodge") + # Use "dodge" to place bars side by side
+  labs(title = paste("Response to Jobs Are Scarce by Sex in", params$country),
+       x = "Jobs Are Scarce Response", y = "Count") +
+  scale_fill_brewer(palette = "Set1", name = "Sex") + # Optional: Use a color palette
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Improve x-axis label readability
+```
+
+### Plot 2 Sex/Child Suffers ###
+
+```{r child-suffers-sex-bar-plot, echo=FALSE, fig.width=14, fig.height=6}
+library(ggplot2)
+
+# Make sure to use the country-specific filtered dataset
+country_data <- country_data %>%
+  mutate(child_suffers = as.factor(child_suffers),
+         respondent_sex = as.factor(respondent_sex))
+
+# Create a bar plot for "child suffers" responses by sex
+ggplot(country_data, aes(x = child_suffers, fill = respondent_sex)) +
+  geom_bar(position = "dodge") + # Bars side by side for clarity
+  labs(title = paste("Responses to Child Suffers by Sex in", params$country),
+       x = "Child Suffers Response", y = "Count") +
+  scale_fill_brewer(palette = "Set1", name = "Sex") + # Color differentiation
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Adjust for readability
+```
+
+## Regression Models ##
+
+```{r regression-results-and-table, echo=FALSE, results='asis'}
+# Load the data
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df2c.RData")
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df3c.RData")
+# Filter df3c for the specified country
+df3c <- df3c %>% filter(country == params$country)
+# Ensure 'respondent_sex' is treated as a factor for modeling
+df2c$respondent_sex <- as.factor(df2c$respondent_sex)
+
+# Optionally, ensure numeric encoding is correct for 'respondent_sex' if not already
+#df2c$respondent_sex <- relevel(df2c$respondent_sex, ref = "male") # Adjust based on your data
+
+# Fit the model for "jobs_are_scarce_numeric"
+model_jobs <- lm(jobs_are_scarce_numeric ~ respondent_sex, data = df2c)
+
+# Fit the model for "child_suffers_numeric"
+model_child <- lm(child_suffers_numeric ~ respondent_sex, data = df2c)
+
+# Dynamic interpretation for jobs_are_scarce_numeric model
+coef_summary_jobs <- summary(model_jobs)$coefficients
+sex_effect_jobs <- coef_summary_jobs["respondent_sexfemale", ] # Adjust based on your coding
+
+# Check if the coefficient is statistically significant for jobs model
+significant_jobs <- ifelse(sex_effect_jobs[4] < 0.05, "statistically significant", "not statistically significant")
+
+interpretation_jobs <- paste(" For 'jobs_are_scarce_numeric', in the context of ", params$country, ", the effect of the sex variable shows a ",
+                        ifelse(sex_effect_jobs[1] > 0, "positive", "negative"), 
+                        " relationship with a coefficient of ", round(sex_effect_jobs[1], 3), 
+                        ". This relationship is ", significant_jobs, ".", sep = "")
+
+cat(interpretation_jobs)
+
+# Dynamic interpretation for child_suffers_numeric model
+coef_summary_child <- summary(model_child)$coefficients
+sex_effect_child <- coef_summary_child["respondent_sexfemale", ] # Adjust based on your coding
+
+# Check if the coefficient is statistically significant for child model
+significant_child <- ifelse(sex_effect_child[4] < 0.05, "statistically significant", "not statistically significant")
+
+interpretation_child <- paste(" For 'child_suffers_numeric', in the context of ", params$country, ", the effect of the sex variable shows a ",
+                        ifelse(sex_effect_child[1] > 0, "positive", "negative"), 
+                        " relationship with a coefficient of ", round(sex_effect_child[1], 3), 
+                        ". This relationship is ", significant_child, ".", sep = "")
+
+cat(interpretation_child)
+```
+
+```{r echo=FALSE, results='asis'}
+ stargazer(model_child, model_jobs, type = "html",
+            title = paste("Regression Models for", params$country),
+            out.header = FALSE, model.names = FALSE,
+            covariate.labels = c("Intercept", "Sex"))
+
+```
+
