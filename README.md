@@ -21,16 +21,22 @@ The original data set had hundreds of columns to choose from however, variables 
 Data was imported into RStudio, cleaned and turned into 3 dataframes cleaned and mutated into our working copies. No raw data was brought into GitHub, but it can be found if needed in the above [[website](https://search.gesis.org/research_data/ZA7500#variables|exploredata-ZA7500_Varv72|0|variable_order|asc)].
 From this manipulated/cleaned dataset there were 3 main projects completed.
 
-1. Created R and Rmd script to output a PDF with code for [[Statisticians](https://github.com/crice0023/HW-2/blob/main/Rmarkdown/Stat%20Copy/EVS_Statistician_Copy.pdf)] with the following:
+1. Created R and Rmd script to output a PDF **with code** for [[Statisticians](https://github.com/crice0023/HW-2/blob/main/Rmarkdown/Stat%20Copy/EVS_Statistician_Copy.pdf)] with the following:
    - `a.` Descriptive statistics (Continuous/Categorical)
    - `b.` 2 ggplots focusing on age against the 2 dependent vars (child_suffers and jobs_are_scarce)
    - `c.` Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.
 
-2. Created R and Rmd script to output a PDF without code for [[Politicians]] with the following:
+2. Created R and Rmd script to output a PDF **without  code** for [[Policy Makers](https://github.com/crice0023/HW-2/blob/main/Rmarkdown/Policy%20Makers/EVS_Policy_Makers_Copy.pdf)] with the following:
    - `a.`  Descriptive statistics (Continuous/Categorical)
    - `b.`  2 ggplots focusing on age against the 2 dependent vars (child_suffers and jobs_are_scarce)
-   - `c.`  Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.
-   - 
+   - `c.`  Regression model using (child_suffers and jobs_are_scarce) against age, age^2, education, and respondent_sex variables.C
+  
+3. Created R and Rmd script to output 33 country-specific html files.
+   - `a.`
+   - `b.`
+   - `c.` 
+   
+     
 ##  Repository Organization
 The folder structure can be found here [https://github.com/crice0023/HW-2/tree/main].
 The structure is as follows: 
