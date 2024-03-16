@@ -54,7 +54,8 @@ The structure is as follows:
  
 ## Main Findings
 
-
+   Sex and Age showed statistical significance in many reporting countries when factored against the dependent variables "jobs_are_scarce" and "child_suffers". These dependent vars represented 2 specific questions: **(1) When jobs are scarce national citizens should be hired before immigrants, and (2) A child suffers when a mother works.** 
+   All forms of output within this research endeavor looked at the impact these variables had with each other during regression modeling. The box plots and bar charts created showed the overall and country-specific response (and non-response) and how the dependent variables interacted along with the independent variables. Descriptive tables showed response totals, percentages of response, mean, quartiles, min, and max dependent upon whether the variables were categorical or continuous. 
 
 ## Session Info ##
 
