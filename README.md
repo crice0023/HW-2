@@ -44,8 +44,9 @@ The structure is as follows:
     - `a.` df1c.RData (data set 1, clean)
     - `b.` df2c.RData (data set 2, clean)
     - `c.` df3c.Rdata (data set 3, clean)
-    - `d.` HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
-    - `e.` HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
+    - `d.` subset_data.RData (data set 4, added sex_respondent_recode variable)
+    - `e.` HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
+    - `f.` HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
 2. R Markdown
     - `a.` Country Specific HTML (houses 33 country-specific html files w/dynamic interpretation)
     - `b.` Policy Makers (houses PDF copy and RMD code)
