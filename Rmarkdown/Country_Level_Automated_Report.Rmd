@@ -6,11 +6,14 @@ params:
 ---
 ## General Information ##
 
-Within this report we have country-specific categorical descriptive statistics. We can observe each report is a stand-alone document (take note of the 100% percentage of the specified state, along with the frequency of reports, and then a break down by category comprising the entire frequency). Our continuous variable, age, is also state-specific. Then we display bar charts on responses by sex regarding our two dependent variables; jobs_are_scarce and child_suffers. Last we show a regression model along with a dynamic report explaining the results. 
+  Within this report we have country-specific categorical descriptive statistics. We can observe each report is a stand-alone document (take note of the 100% percentage of the specified state, along with the frequency of reports, and then a break down by category comprising the entire frequency). 
+  
+  Our continuous variable, age, is also state-specific. Then we display bar charts on responses by sex regarding our two dependent variables; jobs_are_scarce and child_suffers. Last we show a regression model along with a dynamic report explaining the results. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(stargazer)
 library(purrr)
@@ -139,58 +142,85 @@ ggplot(country_data, aes(x = child_suffers, fill = respondent_sex)) +
 
 ## Regression Models ##
 
-```{r regression-results-and-table, echo=FALSE, results='asis'}
+```{r regression-results-and-table, echo=FALSE, message=FALSE, results='asis'}
+
+library(dplyr)
+library(knitr)
+library(broom)
+
 # Load the data
-load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df2c.RData")
 load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df3c.RData")
-# Filter df3c for the specified country
-df3c <- df3c %>% filter(country == params$country)
-# Ensure 'respondent_sex' is treated as a factor for modeling
-df2c$respondent_sex <- as.factor(df2c$respondent_sex)
 
-# Optionally, ensure numeric encoding is correct for 'respondent_sex' if not already
-#df2c$respondent_sex <- relevel(df2c$respondent_sex, ref = "male") # Adjust based on your data
+country_data <- df3c %>%
+  filter(country == params$country)
 
-# Fit the model for "jobs_are_scarce_numeric"
-model_jobs <- lm(jobs_are_scarce_numeric ~ respondent_sex, data = df2c)
 
-# Fit the model for "child_suffers_numeric"
-model_child <- lm(child_suffers_numeric ~ respondent_sex, data = df2c)
+# Prepare the data: recode and add 'other' category as needed
+df3c$respondent_sex <- factor(df3c$respondent_sex, levels = c(levels(df3c$respondent_sex), "other"))
+df3c$respondent_sex[df3c$respondent_sex %in% c("dont know", "no answer")] <- "other"
+df3c$respondent_sex_recode <- df3c$respondent_sex
 
-# Dynamic interpretation for jobs_are_scarce_numeric model
-coef_summary_jobs <- summary(model_jobs)$coefficients
-sex_effect_jobs <- coef_summary_jobs["respondent_sexfemale", ] # Adjust based on your coding
 
-# Check if the coefficient is statistically significant for jobs model
-significant_jobs <- ifelse(sex_effect_jobs[4] < 0.05, "statistically significant", "not statistically significant")
+# Fit models for the specific country
+model_child_suffers <- lm(child_suffers_numeric ~ respondent_sex_recode, data = df3c)
+model_jobs_are_scarce <- lm(jobs_are_scarce_numeric ~ respondent_sex_recode, data = df3c)
 
-interpretation_jobs <- paste(" For 'jobs_are_scarce_numeric', in the context of ", params$country, ", the effect of the sex variable shows a ",
-                        ifelse(sex_effect_jobs[1] > 0, "positive", "negative"), 
-                        " relationship with a coefficient of ", round(sex_effect_jobs[1], 3), 
-                        ". This relationship is ", significant_jobs, ".", sep = "")
+interpret_model <- function(model, dependent_variable) {
+  coef_table <- broom::tidy(model)
+  
+  # Initialize the message with an introduction
+  message <- paste("Regression analysis for", dependent_variable, "in", params$country, "reveals the following significant relationships (p < 0.05):\n")
+  
+  # Filter for significant coefficients
+  significant_coefs <- coef_table %>%
+    filter(p.value < 0.05) %>%
+    mutate(term = ifelse(term == "(Intercept)", "the intercept", term),
+           direction = ifelse(estimate > 0, "positive", "negative"),
+           significance = case_when(
+             p.value < 0.001 ~ "***",
+             p.value < 0.01 ~ "**",
+             p.value < 0.05 ~ "*",
+             TRUE ~ ""
+           ))
+  
+  # Check if there are any significant coefficients
+  if (nrow(significant_coefs) == 0) {
+    message <- paste(message, "No variables were found to have a statistically significant effect.")
+  } else {
+    # Construct a detailed message for each significant coefficient
+    detailed_messages <- vector("character", nrow(significant_coefs))
+    for (i in 1:nrow(significant_coefs)) {
+      row <- significant_coefs[i, ]
+      detailed_messages[i] <- paste(row$term, "has a", row$direction, "effect (estimate:", round(row$estimate, 3), row$significance, ")")
+    }
+    
+    # Concatenate all detailed messages into a single message
+    message <- paste(message, paste(detailed_messages, collapse = "\n"), sep = "\n")
+  }
+  
+  return(message)
+}
+# Generate interpretations
+message_child <- interpret_model(model_child_suffers, "child suffers numeric")
+message_jobs <- interpret_model(model_jobs_are_scarce, "jobs are scarce numeric")
 
-cat(interpretation_jobs)
+# Print the interpretations to the RMarkdown document
+cat(message_child, "\n\n")
+cat(message_jobs)
 
-# Dynamic interpretation for child_suffers_numeric model
-coef_summary_child <- summary(model_child)$coefficients
-sex_effect_child <- coef_summary_child["respondent_sexfemale", ] # Adjust based on your coding
 
-# Check if the coefficient is statistically significant for child model
-significant_child <- ifelse(sex_effect_child[4] < 0.05, "statistically significant", "not statistically significant")
-
-interpretation_child <- paste(" For 'child_suffers_numeric', in the context of ", params$country, ", the effect of the sex variable shows a ",
-                        ifelse(sex_effect_child[1] > 0, "positive", "negative"), 
-                        " relationship with a coefficient of ", round(sex_effect_child[1], 3), 
-                        ". This relationship is ", significant_child, ".", sep = "")
-
-cat(interpretation_child)
 ```
 
+
+
 ```{r echo=FALSE, results='asis'}
- stargazer(model_child, model_jobs, type = "html",
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df3c.RData")
+
+
+stargazer(model_child_suffers, model_jobs_are_scarce, type = "html",
             title = paste("Regression Models for", params$country),
             out.header = FALSE, model.names = FALSE,
-            covariate.labels = c("Intercept", "Sex"))
+            covariate.labels = c("Intercept", "Sex Female"))
 
 ```
 
