@@ -56,6 +56,9 @@ The structure is as follows:
 
 
 ## Session Info ##
+
+<pre>
+```
 R version 4.3.0 (2023-04-21 ucrt)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 Running under: Windows 10 x64 (build 19045)
@@ -99,3 +102,6 @@ loaded via a namespace (and not attached):
 [37] evaluate_0.23      glue_1.7.0         farver_2.1.1      
 [40] fansi_1.0.6        colorspace_2.1-0   tools_4.3.0       
 [43] pkgconfig_2.0.3    htmltools_0.5.7  
+
+```
+</pre>
