@@ -1,6 +1,8 @@
 ---
 title: "Country Level Automated Report for `r params$country`"
-output: html_document
+output:
+  html_document:
+    keep_md: true  # makes Github show html outputs
 params:
   country: "DefaultCountry" # This default value is just for testing
 ---
