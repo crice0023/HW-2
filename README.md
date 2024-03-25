@@ -44,8 +44,9 @@ The structure is as follows:
     - `a.` df1c.RData (data set 1, clean)
     - `b.` df2c.RData (data set 2, clean)
     - `c.` df3c.Rdata (data set 3, clean)
-    - `d.` HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
-    - `e.` HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
+    - `d.` subset_data.RData (data set 4, clean w/ added sex_respondent_recode variable)
+    - `e.` HW-2.R  (R code used to clean data/manipulate data, and to create tables, charts, graphs, and regressions, etc.)
+    - `f.` HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
 2. R Markdown
     - `a.` Country Specific HTML (houses 33 country-specific html files w/dynamic interpretation)
     - `b.` Policy Makers (houses PDF copy and RMD code)
@@ -53,7 +54,13 @@ The structure is as follows:
  
 ## Main Findings
 
+   Sex and Age showed statistical significance in many reporting countries when factored against the dependent variables "jobs_are_scarce" and "child_suffers". These    dependent vars represented 2 specific questions: 
+   
+   **(1) When jobs are scarce national citizens should be hired before immigrants, and (2) A child suffers when a mother works.** 
+   
+   All forms of output within this research endeavor looked at the impact these variables had with each other during regression modeling. The box plots and bar charts created showed the overall and country-specific response (and non-response) and how the dependent variables interacted along with the independent variables. Descriptive tables showed response totals, percentages of response, mean, quartiles, min, and max dependent upon whether the variables were categorical or continuous. 
 
+   Interested parties that wish to learn more about this project should consider reviewing pdf/html output forms. As previously shown, these can be found in the [[Rmarkdown](https://github.com/crice0023/HW-2/tree/main/Rmarkdown)] folder under HW-2. 
 
 ## Session Info ##
 
