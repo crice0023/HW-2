@@ -149,80 +149,85 @@ ggplot(country_data, aes(x = child_suffers, fill = respondent_sex)) +
 library(dplyr)
 library(knitr)
 library(broom)
+library(dplyr)
+library(gtsummary)
 
-# Load the data
-load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df3c.RData")
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df2c.RData")
 
-country_data <- df3c %>%
+country_data <- df2c %>%
   filter(country == params$country)
 
-
-# Prepare the data: recode and add 'other' category as needed
-df3c$respondent_sex <- factor(df3c$respondent_sex, levels = c(levels(df3c$respondent_sex), "other"))
-df3c$respondent_sex[df3c$respondent_sex %in% c("dont know", "no answer")] <- "other"
-df3c$respondent_sex_recode <- df3c$respondent_sex
+# Filter df1c for the specified country
+country_specific_df2c <- df2c %>% filter(country == params$country)
 
 
-# Fit models for the specific country
-model_child_suffers <- lm(child_suffers_numeric ~ respondent_sex_recode, data = df3c)
-model_jobs_are_scarce <- lm(jobs_are_scarce_numeric ~ respondent_sex_recode, data = df3c)
+df2c <- df2c %>%
+  mutate(age_squared = age^2,
+         respondent_sex = as.factor(respondent_sex),
+         education = as.factor(education))
+
+model1 <- lm(jobs_are_scarce_numeric ~ age + age_squared + respondent_sex + education, data = df2c)
+model2 <- lm(child_suffers_numeric ~ age + age_squared + respondent_sex + education, data = df2c)
+
+
+
+# Combine models into a list (if you have multiple models)
+model_list <- list(
+  model1 = model1,
+  model2 = model2
+)
+
+# Create a table with gtsummary
+table <- purrr::map(model_list, ~.x %>% tbl_regression()) %>%
+  tbl_merge(
+    tab_spanner = c("Jobs Are Scarce Numeric", "Child Suffers Numeric")
+  )
+
+# Print the table in R Markdown
+table
+
 
 interpret_model <- function(model, dependent_variable) {
   coef_table <- broom::tidy(model)
   
-  # Initialize the message with an introduction
   message <- paste("Regression analysis for", dependent_variable, "in", params$country, "reveals the following significant relationships (p < 0.05):\n")
   
-  # Filter for significant coefficients
   significant_coefs <- coef_table %>%
     filter(p.value < 0.05) %>%
-    mutate(term = ifelse(term == "(Intercept)", "the intercept", term),
-           direction = ifelse(estimate > 0, "positive", "negative"),
-           significance = case_when(
-             p.value < 0.001 ~ "***",
-             p.value < 0.01 ~ "**",
-             p.value < 0.05 ~ "*",
-             TRUE ~ ""
-           ))
+    mutate(
+      term = ifelse(term == "(Intercept)", "the intercept", term),
+      direction = ifelse(estimate > 0, "positive", "negative"),
+      significance = case_when(
+        p.value < 0.001 ~ "***",
+        p.value < 0.01 ~ "**",
+        p.value < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    )
   
-  # Check if there are any significant coefficients
   if (nrow(significant_coefs) == 0) {
     message <- paste(message, "No variables were found to have a statistically significant effect.")
   } else {
-    # Construct a detailed message for each significant coefficient
-    detailed_messages <- vector("character", nrow(significant_coefs))
+    detailed_messages <- vector("character", length = nrow(significant_coefs))
     for (i in 1:nrow(significant_coefs)) {
       row <- significant_coefs[i, ]
       detailed_messages[i] <- paste(row$term, "has a", row$direction, "effect (estimate:", round(row$estimate, 3), row$significance, ")")
     }
-    
-    # Concatenate all detailed messages into a single message
     message <- paste(message, paste(detailed_messages, collapse = "\n"), sep = "\n")
   }
   
   return(message)
 }
-# Generate interpretations
-message_child <- interpret_model(model_child_suffers, "child suffers numeric")
-message_jobs <- interpret_model(model_jobs_are_scarce, "jobs are scarce numeric")
-
-# Print the interpretations to the RMarkdown document
-cat(message_child, "\n\n")
-cat(message_jobs)
 
 
+message_for_model1 <- interpret_model(model1, "jobs_are_scarce_numeric")
+message_for_model2 <- interpret_model(model2, "child_suffers_numeric")
+
+cat(message_for_model1, "\n\n")
+cat(message_for_model2)
 ```
 
 
 
-```{r echo=FALSE, results='asis'}
-load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df3c.RData")
 
-
-stargazer(model_child_suffers, model_jobs_are_scarce, type = "html",
-            title = paste("Regression Models for", params$country),
-            out.header = FALSE, model.names = FALSE,
-            covariate.labels = c("Intercept", "Sex Female"))
-
-```
 
