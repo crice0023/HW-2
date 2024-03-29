@@ -849,6 +849,7 @@ subset_data <- df3c[df3c$country == specific_country,]
 # Ensure 'respondent_sex_recode' retains all original levels
 subset_data$respondent_sex_recode <-
   factor(subset_data$respondent_sex_recode, levels = all_sex_levels)
+print(head(country_data))
 
 
 install.packages("gtsummary")
@@ -862,3 +863,75 @@ library(modelsummary)
 
 install.packages("sjPlot")
 library(sjPlot)
+
+if (!requireNamespace("gtsummary", quietly = TRUE))
+  install.packages("gtsummary")
+#######################  new attempt at country specific regression ###########
+library(dplyr)
+library(knitr)
+library(broom)
+library(dplyr)
+library(stargazer)
+
+load("C:/Users/ricecakes/Desktop/Git1/HW-2/Rcode/df2c.RData")
+
+country_data <- df2c %>%
+  filter(country == params$country)
+
+df2c <- df2c %>%
+  mutate(age_squared = age^2,
+         respondent_sex = as.factor(respondent_sex),
+         education = as.factor(education))
+
+model1 <- lm(jobs_are_scarce_numeric ~ age + age_squared + respondent_sex + education, data = df2c)
+model2 <- lm(child_suffers_numeric ~ age + age_squared + respondent_sex + education, data = df2c)
+
+stargazer(model1, model2, type = "text", 
+          title = "Regression Models Results",
+          align = TRUE,
+          header = FALSE,
+          model.numbers = FALSE,
+          digits = 3,  # Adjust number of decimal places, if desired
+          p.auto = TRUE,  # Ensure automatic p-value significance levels are used
+          signif.codes = TRUE)  # Ensure significance codes are shown
+
+
+interpret_model <- function(model, dependent_variable) {
+  coef_table <- broom::tidy(model)
+  
+  message <- paste("Regression analysis for", dependent_variable, "in", params$country, "reveals the following significant relationships (p < 0.05):\n")
+  
+  significant_coefs <- coef_table %>%
+    filter(p.value < 0.05) %>%
+    mutate(
+      term = ifelse(term == "(Intercept)", "the intercept", term),
+      direction = ifelse(estimate > 0, "positive", "negative"),
+      significance = case_when(
+        p.value < 0.001 ~ "***",
+        p.value < 0.01 ~ "**",
+        p.value < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    )
+  
+  if (nrow(significant_coefs) == 0) {
+    message <- paste(message, "No variables were found to have a statistically significant effect.")
+  } else {
+    detailed_messages <- vector("character", length = nrow(significant_coefs))
+    for (i in 1:nrow(significant_coefs)) {
+      row <- significant_coefs[i, ]
+      detailed_messages[i] <- paste(row$term, "has a", row$direction, "effect (estimate:", round(row$estimate, 3), row$significance, ")")
+    }
+    message <- paste(message, paste(detailed_messages, collapse = "\n"), sep = "\n")
+  }
+  
+  return(message)
+}
+
+
+message_for_model1 <- interpret_model(model1, "jobs_are_scarce_numeric")
+message_for_model2 <- interpret_model(model2, "child_suffers_numeric")
+
+cat(message_for_model1, "\n\n")
+cat(message_for_model2)
+
