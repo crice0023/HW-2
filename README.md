@@ -49,6 +49,7 @@ The structure is as follows:
     - `f.` HW-2_Country_Loop.R  (Loop function to create the country-specific html products)
 2. R Markdown
     - `a.` Country Specific HTML (houses 33 country-specific html files w/dynamic interpretation)
+    -       the ggplots do not show up in the md files. in order to view them see HW-2/Rmarkdown/report_*Country*
     - `b.` Policy Makers (houses PDF copy and RMD code)
     - `c.` Stat Copy (houses PDF copy and RMD code)
  
